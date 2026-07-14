@@ -1,0 +1,82 @@
+import pandas as pd
+import plotly.express as px
+
+# 1. Carregando os dados
+# (Como o dslabs é do R, podemos puxar o Gapminder direto do repositório oficial ou usar o que já vem no Plotly)
+df_gapminder = px.data.gapminder()
+
+# No dataset do Plotly, as colunas já vêm calculadas (gdpPercap, lifeExp, pop).
+# Mas vamos simular o seu passo de mutação para você ver como funciona no Pandas:
+df_gapminder['gdpcapita'] = df_gapminder['gdpPercap'] # Apenas mapeando para o seu nome
+df_gapminder['life_expectancy'] = df_gapminder['lifeExp']
+df_gapminder['population'] = df_gapminder['pop']
+
+# Filtrando e removendo NAs (equivalente ao filter e drop_na do tidyverse)
+gap_anual = df_gapminder[df_gapminder['year'] <= 2011].dropna(
+    subset=['gdpcapita', 'life_expectancy', 'population']
+)
+
+# Criando a base para o gráfico de 2011 (ajustando para o ano máximo disponível que no plotly é 2007, ou o seu 2011)
+# Nota: O dataset padrão do plotly vai até 2007. Se o seu tiver 2011, ele filtrará certinho.
+ano_max = gap_anual['year'].max()
+gap_2011 = gap_anual[gap_anual['year'] == ano_max]
+
+# --- 2. GRÁFICO TRANSVERSAL INTERATIVO (Equivalente ao ggplotly) ---
+
+# Customização do Tooltip (o parâmetro 'text' do R vira o hover_data no Plotly)
+# Criamos uma coluna de texto formatada exatamente como você fez
+gap_2011['text'] = (
+    "País: " + gap_2011['country'] +
+    "<br>PIB per capita: " + gap_2011['gdpcapita'].round(0).astype(str) +
+    "<br>Expectativa de vida: " + gap_2011['life_expectancy'].round(0).astype(str) + " anos" +
+    "<br>População: " + gap_2011['population'].apply(lambda x: f"{x:,}")
+)
+
+fig1 = px.scatter(
+    gap_2011,
+    x="gdpcapita",
+    y="life_expectancy",
+    color="continent",
+    size="population",
+    log_x=True, # Equivalente ao scale_x_log10()
+    hover_name="country",
+    hover_data={"text": True, "gdpcapita": False, "life_expectancy": False, "continent": False, "population": False},
+    labels={"gdpcapita": "PIB per capita", "life_expectancy": "Expectativa de vida", "continent": "Continente"},
+    title="Expectativa de vida vs PIB per Capita<br><sup>Quanto maior o PIB per capita, maior é a expectativa de vida</sup>"
+)
+
+# Ajustes finos de layout (Equivalente ao theme_light e guides)
+fig1.update_layout(template="plotly_white")
+fig1.update_traces(marker=dict(opacity=0.7))
+
+# Exibe o gráfico interativo no Jupyter
+fig1.show()
+
+
+# --- 3. GRÁFICO ANIMADO (Equivalente ao gganimate) ---
+
+# No Plotly, fazer animação ao longo dos anos é ridiculamente simples, basta usar 'animation_frame'
+gap_anual = gap_anual.sort_values(by="year") # Garante que os anos estão na ordem cronológica
+
+fig_animado = px.scatter(
+    gap_anual,
+    x="gdpcapita",
+    y="life_expectancy",
+    animation_frame="year", # ISSO substitui o transition_time(year)
+    animation_group="country",
+    size="population",
+    color="continent",
+    hover_name="country",
+    log_x=True,
+    size_max=60, # Ajusta o tamanho máximo das bolhas para não estourarem na tela
+    range_x=[100, 100000], # Fixa os eixos para o gráfico não ficar pulando a cada ano
+    range_y=[20, 90],
+    labels={"gdpcapita": "PIB per capita", "life_expectancy": "Expectativa de vida", "continent": "Continente"},
+    title="Expectativa de vida vs PIB per Capita ao Longo dos Anos"
+)
+
+fig_animado.update_layout(template="plotly_white")
+fig_animado.update_traces(marker=dict(opacity=0.7))
+
+# Exibe o gráfico com o botão de "Play" e a linha do tempo embaixo!
+fig_animado.show()
