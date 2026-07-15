@@ -1,0 +1,31 @@
+import pandas as pd
+import numpy as np
+import plotly.express as px
+
+# Carregando banco de dados 
+df_tips = px.data.tips()
+df_tips.info()
+df_tips.head()
+
+# Traduzindo os nomes dos sexos
+df_tips["sex"] = df_tips["sex"].map({"Male": "Masculino", "Female": "Feminino"})
+
+# Contador de dados faltantes
+print(df_tips.isna().sum())
+
+# Plotando gráfico de dispersão
+# Primeira pergunta: Qual é a relação entre o total da conta e a gorjeta?
+fig1 = px.scatter(
+    df_tips,
+    x = "total_bill",
+    y = "tip",
+    color = "sex",
+    title = "Relação entre conta total e gorjeta",
+    labels= {
+        "total_bill" : "Conta Total",
+        "tip" : "Gorjeta",
+        "sex" : "Sexo"
+    }
+)
+
+fig1.show()
