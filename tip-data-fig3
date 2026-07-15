@@ -1,0 +1,24 @@
+df_tips = px.data.tips()
+
+df_tips["sex"] = df_tips["sex"].map({"Male": "Masculino", "Female": "Feminino"})
+df_tips["smoker"] = df_tips["smoker"].map({"Yes": "Fumante", "No": "Não Fumante"})
+
+fig3 = px.scatter(
+    df_tips,
+    x = "total_bill",      
+    y = "tip",
+    facet_col = "sex",     # Divide a tela em Masculino | Feminino
+    color = "smoker",      # Pinta por Fumante / Não Fumante
+    title = "Comparativo de Gorjetas por Gênero e Hábito de Fumar",
+    labels = {
+        "total_bill": "Conta Total ($)",
+        "tip": "Gorjeta ($)",
+        "smoker": "Fumante",
+        "sex": "Sexo"
+    }
+)
+
+# 4. Aplica o fundo branco com grid destacado
+fig3.update_layout(template="plotly_white")
+
+fig3.show()
