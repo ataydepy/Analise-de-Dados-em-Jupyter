@@ -1,0 +1,17 @@
+df_tips["time"] = df_tips["time"].map({"Lunch": "Almoço", "Dinner": "Jantar"})
+
+fig2 = px.scatter(
+    df_tips,
+    x = "total_bill",
+    y = "tip",
+    facet_col = "time", # Cria as telas lado a lado
+    color = "time",     # Pinta cada turno com uma cor diferente
+    title = "Comparativo de Conta e Gorjeta por Turno do Dia",
+    labels = {
+        "total_bill": "Conta Total",
+        "tip": "Gorjeta",
+        "time": "Turno"
+    }
+)
+
+fig2.show()
