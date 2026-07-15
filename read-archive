@@ -1,0 +1,15 @@
+import pandas as pd
+import glob
+
+# Aponta para a pasta e procura por qualquer arquivo que termine com .csv
+pasta = r"C:\Users\Ataide\.cache\kagglehub\datasets\sayeeduddin\netflix-2025user-behavior-dataset-210k-records\versions\1\*.csv"
+arquivos_encontrados = glob.glob(pasta)
+
+# Carrega o primeiro arquivo CSV que ele achar lá dentro
+if arquivos_encontrados:
+    caminho_real = arquivos_encontrados[0]
+    print(f"Sucesso! Arquivo encontrado: {caminho_real}")
+    df = pd.read_csv(caminho_real)
+    df.head()
+else:
+    print("Vish! Não encontramos nenhum arquivo .csv nessa pasta.")
